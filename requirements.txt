@@ -1,0 +1,13 @@
+coverage
+matplotlib
+nose
+numpy
+opencv-python
+pandas
+pillow
+pypng
+pyyaml
+scipy
+scikit-image
+sklearn
+tensorflow-gpu==1.8

@@ -1,0 +1,160 @@
+# Example config for instance_pc
+# Checkpoint name will have the same name as this file
+
+dataset: 'kitti'
+model_name: 'monopsr'
+allow_gpu_mem_growth: True
+
+dataset_config:
+    dataset_type: 'kitti_obj'
+
+    use_mscnn_detections: True
+    mscnn_thr: [0.2, 0.2, 0.2]
+
+    batch_size: 1
+    oversample: True
+
+    num_boxes: 32
+    num_alpha_bins: 12
+    alpha_bin_overlap: 0.0
+    centroid_type: 'middle'  # 'bottom' 'middle'
+
+    classes: ['Car']
+
+    # Object Filtering
+    obj_filter_config:
+        # Note: Object types filtered based on classes
+        difficulty_str: 'hard'
+        box_2d_height: !!null
+        truncation: 0.3
+        occlusion: !!null
+        depth_range: [5, 45]
+
+    # Augmentation
+    aug_config:
+        use_image_aug: False
+        box_jitter_type: 'oversample'  # 'oversample', 'oversample_gt', 'all', !!null
+
+    name: 'kitti'
+    dataset_dir: '~/Kitti/object'
+    data_split: 'train'
+    data_split_dir: 'training'
+    has_kitti_labels: True
+
+    depth_version: 'multiscale'
+    instance_version: 'depth_2_multiscale'
+
+model_config:
+    model_type: 'monopsr'
+
+    # Input configs
+    image_input_shape: [320, 1216]
+    mean_sub_type: 'kitti'
+
+    # Other model configs
+    inst_crop_type: 'depth_map'
+    img_roi_size: [48, 48]
+    map_roi_size: [48, 48]
+    centroid_type: 'middle'  # 'bottom' 'middle'
+
+    # Resize image to reduce memory for nets that have full image as input
+    resized_full_img_shape: [160, 608]
+
+    # Net type
+    net_type: 'resnet101_4x_squash'
+
+    # Net config, selected based on net_type
+    net_config:
+        resnet101_4x_squash:
+            first_stage_features_stride: 16
+            pretrained_weights_type: obj_detection_api
+            pretrained_weights_name: 'faster_rcnn_resnet101_kitti_2018_01_28'
+
+    proposal_fc_layers:
+        layer_sizes: [1024, 1024]
+        dropout_keep_prob: 1.0
+    regression_fc_layers:
+        layer_sizes: [1024, 1024]
+        dropout_keep_prob: 1.0
+
+    rotate_view: True
+    use_pointnet_features: False
+    normalize_appended_ests: True
+
+    output_config:  # Comment lines to toggle on/off
+        # Local instance maps
+        inst_xyz_map_local:    'map'
+
+        # # # 3D box # # #
+        lwh:                   'offset'              # 'gt', 'est', 'offset'
+        alpha:                 'dc'                  # 'gt', 'est', 'dc', 'prob'
+        view_ang:              'est'                 # 'gt', 'est', 'offset'
+        cen_x:                 'from_view_ang_and_z'
+        cen_y:                 'offset'              # gt, est, offset
+        cen_z:                 'offset'              # gt, est
+        centroids:             'xyz'
+
+        # Global instance maps
+        inst_xyz_map_global:   'projection'
+        inst_depth_map_global: 'map'
+
+    # TODO: Combine with output rep?
+    loss_config:  # DON'T COMMENT THESE LINES
+        # Local instance maps
+        inst_xyz_map_local: ['smooth_l1_nonzero', 100.0]
+        valid_mask_maps: ['sigmoid_ce', 0.1]
+
+        # # # 3D boxes # # #
+        lwh: ['smooth_l1', 1.0]
+        alpha_cls: ['softmax', 0.3, 0.001]  # ['focal', 0.3, 0.001]
+        alpha_reg: ['smooth_l1', 1.0]
+        alpha_cls_temp: ['softmax_temp', 0.3]
+        view_ang: ['smooth_l1', 0.1]
+        cen_y: ['smooth_l1', 0.1]
+        cen_z: ['smooth_l1', 0.1]
+
+        # Global instance maps
+        inst_xyz_map_global: ['smooth_l1_nonzero', 0.1]
+        inst_depth_map_global: ['smooth_l1_nonzero', 10.0]
+
+
+    metrics_to_show: [
+        ['metric_chamfer', 'avg'],
+        ['metric_emd', 'avg'],
+        ['metric_cen_z_err', 'avg_abs'],
+        ['metric_cen_z_err', 'std'],
+    ]
+
+    post_process_cen_x: True
+
+# Training Configuration
+train_config:
+    max_iterations: 142000
+    summary_interval: 10
+    checkpoint_interval: 2000
+    max_checkpoints_to_keep: 10000
+
+    overwrite_checkpoints: False
+
+    # The optimizer fields will vary depending on optimizer_type. Ex.
+    # momentum will have a momentum_optimizer_value
+    optimizer:
+        optimizer_type: 'adam_optimizer'
+
+        adam_optimizer:
+            learning_rate_type: 'exponential_decay'
+            initial_learning_rate: 0.00008
+            decay_steps: 10000
+            decay_factor: 0.8
+            staircase: True
+
+            use_moving_average: True
+            moving_average_decay: 0.9999
+
+    paths_config:
+        checkpoint_dir: !!null
+
+    kitti_score_threshold: 0.1
+
+# Summaries
+summary_images: False
