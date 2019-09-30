@@ -1,12 +1,14 @@
-# MonoPSR (CVPR 2019)
+# MonoPSR
 [Monocular 3D Object Detection Leveraging Accurate Proposals and Shape Reconstruction](https://arxiv.org/abs/1904.01690)
 
 [Jason Ku*](http://kujason.com/), [Alex D. Pon*](http://alexdpon.com/), [Steven L. Waslander](https://scholar.google.ca/citations?user=CwgGTXMAAAAJ) (*Equal Contribution)
 
-This repository contains the public release of the Tensorflow implementation of *Monocular 3D Object Detection Leveraging Accurate Proposals and Shape Reconstruction*.
+This repository contains the public release of the Tensorflow implementation of *Monocular 3D Object Detection Leveraging Accurate Proposals and Shape Reconstruction* in CVPR 2019.
 
 ## Video
 Demo [video](https://youtu.be/_iJpEpXB7j4) showing results on several KITTI sequences.
+
+[![Demo](http://img.youtube.com/vi/_iJpEpXB7j4/mqdefault.jpg)](https://youtu.be/_iJpEpXB7j4)
 
 ## Getting Started
 Implemented and tested on Ubuntu 16.04 with Python 3.5 and Tensorflow 1.8.0.
