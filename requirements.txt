@@ -10,4 +10,4 @@ pyyaml
 scipy
 scikit-image
 sklearn
-tensorflow-gpu==1.8
+tensorflow-gpu==2.7.2
